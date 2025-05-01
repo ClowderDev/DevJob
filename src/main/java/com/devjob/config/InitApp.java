@@ -35,34 +35,34 @@ public class InitApp {
     ApplicationRunner initApplication() {
         log.info("Initializing application.....");
         return args -> {
-            Optional<Role> roleUser = roleRepository.findByName("ROLE_" + String.valueOf(UserType.USER));
+            Optional<Role> roleUser = roleRepository.findByName(String.valueOf(UserType.USER));
             if (roleUser.isEmpty()) {
                 roleRepository.save(Role.builder()
-                        .name("ROLE_" + String.valueOf(UserType.USER))
+                        .name(String.valueOf(UserType.USER))
                         .description("User role")
                         .build());
             }
 
-            Optional<Role> roleAdmin = roleRepository.findByName("ROLE_" + String.valueOf(UserType.ADMIN));
+            Optional<Role> roleAdmin = roleRepository.findByName(String.valueOf(UserType.ADMIN));
             if (roleAdmin.isEmpty()) {
                 roleRepository.save(Role.builder()
-                        .name("ROLE_" + String.valueOf(UserType.ADMIN))
+                        .name(String.valueOf(UserType.ADMIN))
                         .description("Admin role")
                         .build());
             }
 
-            Optional<Role> roleManager = roleRepository.findByName("ROLE_" + String.valueOf(UserType.MANAGER));
+            Optional<Role> roleManager = roleRepository.findByName(String.valueOf(UserType.MANAGER));
             if (roleManager.isEmpty()) {
                 roleRepository.save(Role.builder()
-                        .name("ROLE_" + String.valueOf(UserType.MANAGER))
+                        .name(String.valueOf(UserType.MANAGER))
                         .description("Manager role")
                         .build());
             }
 
-            Optional<Role> roleStaff = roleRepository.findByName("ROLE_" + String.valueOf(UserType.STAFF));
+            Optional<Role> roleStaff = roleRepository.findByName(String.valueOf(UserType.STAFF));
             if (roleStaff.isEmpty()) {
                 roleRepository.save(Role.builder()
-                        .name("ROLE_" + String.valueOf(UserType.STAFF))
+                        .name(String.valueOf(UserType.STAFF))
                         .description("Staff role")
                         .build());
             }

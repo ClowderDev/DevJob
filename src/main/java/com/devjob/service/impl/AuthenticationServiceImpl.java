@@ -1,9 +1,9 @@
 package com.devjob.service.impl;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Objects;
 
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,7 +27,6 @@ import com.devjob.service.MailService;
 import com.nimbusds.jose.JOSEException;
 
 import io.micrometer.common.util.StringUtils;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final JwtServiceImpl jwtService;
     private final AuthenticationManager authenticationManager;
-    private final MailService mailService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final PasswordEncoder passwordEncoder;
 
     public void signUp(SignUpRequest request) {
@@ -54,12 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
 
         userRepository.save(user);
-
-        try {
-            mailService.sendConfirmationEmail(request.getEmail());
-        } catch (MessagingException | IOException e) {
-            throw new AppException(ErrorCode.SEND_CONFIRMATION_EMAIL_FAILED);
-        }
+        kafkaTemplate.send("emailTopic", user.getEmail());
 
         log.info("Sign up completed");
     }
@@ -182,15 +176,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String token = jwtService.generateForgotPasswordToken(user);
 
-        try {
-            mailService.sendForgotPasswordEmail(email, token);
-        } catch (MessagingException | IOException e) {
-            log.error("Failed to send forgot password email to: {}. Error: {}", email, e.getMessage(), e);
-            throw new AppException(ErrorCode.SEND_FORGOT_PASSWORD_EMAIL_FAILED);
-        }
+        String resetMessage = email + "," + token;
+        kafkaTemplate.send("emailTopic", resetMessage);
         log.info("Forgot password completed");
     }
 
+    // Postpone till frontend is ready
     public void resetPassword(ResetPasswordRequest request) {
         log.info("Reset password started");
 
