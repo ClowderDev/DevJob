@@ -23,7 +23,6 @@ import com.devjob.exception.ErrorCode;
 import com.devjob.model.User;
 import com.devjob.repository.UserRepository;
 import com.devjob.service.AuthenticationService;
-import com.devjob.service.MailService;
 import com.nimbusds.jose.JOSEException;
 
 import io.micrometer.common.util.StringUtils;
@@ -46,6 +45,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void signUp(SignUpRequest request) {
         log.info("Sign up started");
 
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -53,7 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
 
         userRepository.save(user);
-        kafkaTemplate.send("emailTopic", user.getEmail());
+        kafkaTemplate.send("confirmationEmail", user.getEmail());
 
         log.info("Sign up completed");
     }
@@ -64,8 +67,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        if (user.getStatus() == UserStatus.ACTIVE) {
+            throw new AppException(ErrorCode.USER_ALREADY_ACTIVE);
+        }
+
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
+
+        kafkaTemplate.send("welcomeEmail", user.getEmail());
 
         log.info("Confirm email completed");
     }
@@ -177,7 +186,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String token = jwtService.generateForgotPasswordToken(user);
 
         String resetMessage = email + "," + token;
-        kafkaTemplate.send("emailTopic", resetMessage);
+        kafkaTemplate.send("forgotPasswordEmail", resetMessage);
         log.info("Forgot password completed");
     }
 

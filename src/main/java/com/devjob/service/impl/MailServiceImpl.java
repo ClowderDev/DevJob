@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.devjob.exception.AppException;
+import com.devjob.exception.ErrorCode;
+import com.devjob.model.User;
+import com.devjob.repository.UserRepository;
 import com.devjob.service.MailService;
 
 import jakarta.mail.MessagingException;
@@ -28,18 +32,19 @@ public class MailServiceImpl implements MailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final UserRepository userRepository;
 
     @Value("${spring.mail.from}")
     private String fromEmail;
 
-    @KafkaListener(topics = "emailTopic", groupId = "confirmation-group")
+    @KafkaListener(topics = "confirmationEmail", groupId = "confirmation-group")
     public void sendConfirmationEmail(String recipient) throws MessagingException, IOException {
         log.info("Sending confirmation email to {}", recipient);
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
 
         Context context = new Context();
-        String confirmationUrl = "http://localhost:8080/auth/confirm-email/" + recipient;
+        String confirmationUrl = "http://localhost:3000/auth/confirm-email/" + recipient;
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("confirmationUrl", confirmationUrl);
@@ -56,14 +61,24 @@ public class MailServiceImpl implements MailService {
         log.info("Confirmation email sent successfully to {}", recipient);
     }
 
-    @KafkaListener(topics = "emailTopic", groupId = "reset-password-group")
+    @KafkaListener(topics = "forgotPasswordEmail", groupId = "forgot-password-group")
     public void sendForgotPasswordEmail(String resetMessage)
             throws MessagingException, IOException {
-        log.info("Sending reset password email");
-        String[] parts = resetMessage.split(",");
+        log.info("Sending reset password email with message: {}", resetMessage);
 
-        String recipient = parts[0];
-        String token = parts[1];
+        if (resetMessage == null || resetMessage.trim().isEmpty()) {
+            log.error("Reset message is null or empty");
+            throw new AppException(ErrorCode.SEND_FORGOT_PASSWORD_EMAIL_FAILED);
+        }
+
+        String[] parts = resetMessage.split(",");
+        if (parts.length != 2) {
+            log.error("Invalid reset message format. Expected: email,token but got: {}", resetMessage);
+            throw new AppException(ErrorCode.SEND_FORGOT_PASSWORD_EMAIL_FAILED);
+        }
+
+        String recipient = parts[0].trim();
+        String token = parts[1].trim();
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
@@ -89,5 +104,34 @@ public class MailServiceImpl implements MailService {
         mailSender.send(message);
 
         log.info("Reset password email sent successfully");
+    }
+
+    @KafkaListener(topics = "welcomeEmail", groupId = "welcome-group")
+    public void sendWelcomeEmail(String recipient) throws MessagingException, IOException {
+        log.info("Sending welcome email to {}", recipient);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
+
+        Context context = new Context();
+
+        User user = userRepository.findByEmail(recipient)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getName());
+
+        context.setVariables(variables);
+
+        messageHelper.setFrom(fromEmail, "DevJob");
+        messageHelper.setTo(recipient);
+        messageHelper.setSubject("Welcome to DevJob");
+
+        String html = templateEngine.process("welcome-email.html", context);
+        messageHelper.setText(html, true);
+
+        mailSender.send(message);
+
+        log.info("Welcome email sent successfully to {}", recipient);
     }
 }

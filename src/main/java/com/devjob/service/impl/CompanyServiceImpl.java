@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.devjob.dto.response.PageResponse;
+import com.devjob.exception.AppException;
+import com.devjob.exception.ErrorCode;
 import com.devjob.model.Company;
 import com.devjob.repository.CompanyRepository;
 import com.devjob.service.CompanyService;
@@ -35,8 +37,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Company getCompanyById(Long companyId) {
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + companyId));
+        return companyRepository.findById(companyId).orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
     }
 
 }

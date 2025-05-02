@@ -43,6 +43,7 @@ public class AuthController {
                 .build();
     }
 
+    // only work with postman, browser email will be postponed till frontend is done
     @PostMapping("/confirm-email/{email}")
     @ResponseBody
     ResponseData<Void> confirmEmail(@PathVariable String email) {
