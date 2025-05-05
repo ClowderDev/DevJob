@@ -1,4 +1,4 @@
-package com.devjob.dto.response;
+package com.devjob.dto.response.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

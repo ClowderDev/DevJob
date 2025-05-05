@@ -1,4 +1,6 @@
-package com.devjob.dto.request;
+package com.devjob.dto.request.auth;
+
+import java.io.Serializable;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChangePasswordRequest {
+public class ChangePasswordRequest implements Serializable {
 
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Invalid email format")

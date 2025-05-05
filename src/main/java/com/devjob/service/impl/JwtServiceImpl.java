@@ -155,7 +155,7 @@ public class JwtServiceImpl implements JwtService {
 
     private String buildAuthority(User user) {
         return user.getUserHasRoles().stream()
-                .map(userHasRole -> userHasRole.getRole().getName())
+                .map(userHasRole -> "ROLE_" + userHasRole.getRole().getName())
                 .collect(Collectors.joining(","));
     }
 

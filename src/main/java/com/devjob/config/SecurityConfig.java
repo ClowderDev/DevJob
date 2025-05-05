@@ -1,6 +1,8 @@
 package com.devjob.config;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -34,7 +39,6 @@ public class SecurityConfig {
         }
 
         private static final String[] WHITE_LIST = {
-
                         "/auth/**",
                         "/users/**",
                         "/company/**",
@@ -48,6 +52,14 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+                jwtConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+                        var authorities = jwt.getClaimAsString("Authority");
+                        return authorities != null ? Arrays.stream(authorities.split(","))
+                                        .map(SimpleGrantedAuthority::new)
+                                        .collect(Collectors.toList()) : List.of();
+                });
+
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .cors(Customizer.withDefaults())
@@ -58,7 +70,7 @@ public class SecurityConfig {
                                 .sessionManagement(sessionManagement -> sessionManagement
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .oauth2ResourceServer(oauth2 -> oauth2
-                                                .jwt(Customizer.withDefaults())
+                                                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter))
                                                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                                                 .accessDeniedHandler(new JwtAccessDeniedHandler()));
 

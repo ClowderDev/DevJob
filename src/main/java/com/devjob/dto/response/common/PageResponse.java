@@ -1,4 +1,4 @@
-package com.devjob.dto.response;
+package com.devjob.dto.response.common;
 
 import lombok.Builder;
 import lombok.Getter;

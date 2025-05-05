@@ -16,6 +16,10 @@ public enum ErrorCode {
     COMPANY_EXISTED(400, "Company existed", HttpStatus.BAD_REQUEST),
     COMPANY_NOT_EXISTED(400, "Company not existed", HttpStatus.BAD_REQUEST),
 
+    // Job
+    JOB_NOT_EXISTED(400, "Job not existed", HttpStatus.BAD_REQUEST),
+    JOB_ALREADY_EXISTS(400, "Job already exists", HttpStatus.BAD_REQUEST),
+
     // Auth
     UNAUTHORIZED(401, "Unauthorized", HttpStatus.UNAUTHORIZED),
     ACCESS_DENIED(403, "Access denied", HttpStatus.FORBIDDEN),
@@ -32,7 +36,6 @@ public enum ErrorCode {
     // Email
     SEND_CONFIRMATION_EMAIL_FAILED(400, "Send confirmation email failed", HttpStatus.BAD_REQUEST),
     SEND_FORGOT_PASSWORD_EMAIL_FAILED(400, "Send forgot password email failed", HttpStatus.BAD_REQUEST);
-   
 
     private final int code;
     private final String message;

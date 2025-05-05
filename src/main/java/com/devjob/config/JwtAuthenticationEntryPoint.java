@@ -8,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import com.devjob.dto.response.ErrorResponse;
+import com.devjob.dto.response.common.ErrorResponse;
 import com.devjob.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

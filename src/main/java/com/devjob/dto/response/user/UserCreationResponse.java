@@ -1,4 +1,4 @@
-package com.devjob.dto.response;
+package com.devjob.dto.response.user;
 
 import java.io.Serializable;
 

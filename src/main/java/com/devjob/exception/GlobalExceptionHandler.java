@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import com.devjob.dto.response.ErrorResponse;
+import com.devjob.dto.response.common.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

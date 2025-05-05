@@ -85,6 +85,40 @@ public class InitApp {
                 userRepository.save(user);
             }
 
+            Optional<User> managerUser = userRepository.findByEmail("manager@gmail.com");
+            if (managerUser.isEmpty()) {
+                User user = User.builder()
+                        .email("manager@gmail.com")
+                        .password(passwordEncoder.encode("123456"))
+                        .status(UserStatus.ACTIVE)
+                        .build();
+
+                UserHasRole userHasRole = UserHasRole.builder()
+                        .user(user)
+                        .role(roleManager.get())
+                        .build();
+
+                user.setUserHasRoles(Set.of(userHasRole));
+                userRepository.save(user);
+            }
+
+            Optional<User> staffUser = userRepository.findByEmail("staff@gmail.com");
+            if (staffUser.isEmpty()) {
+                User user = User.builder()
+                        .email("staff@gmail.com")
+                        .password(passwordEncoder.encode("123456"))
+                        .status(UserStatus.ACTIVE)
+                        .build();
+
+                UserHasRole userHasRole = UserHasRole.builder()
+                        .user(user)
+                        .role(roleStaff.get())
+                        .build();
+
+                user.setUserHasRoles(Set.of(userHasRole));
+                userRepository.save(user);
+            }
+
             Optional<User> basicUser = userRepository.findByEmail("user@gmail.com");
             if (basicUser.isEmpty()) {
                 User user = User.builder()

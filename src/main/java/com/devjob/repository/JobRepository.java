@@ -17,9 +17,12 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             "LEFT JOIN j.company c " +
             "WHERE LOWER(j.title) LIKE :keyword " +
             "OR LOWER(s.name) LIKE :keyword " +
-            "OR LOWER(c.name) LIKE :keyword")
+            "OR LOWER(c.name) LIKE :keyword " +
+            "OR LOWER(j.location) LIKE :keyword")
     Page<Job> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     Page<Job> findAll(Pageable pageable);
+
+    boolean existsByTitleAndCompanyId(String title, Long companyId);
 
 }

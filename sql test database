@@ -1,0 +1,178 @@
+-- Create database
+CREATE DATABASE IF NOT EXISTS devjob;
+USE devjob;
+
+-- Create tables
+CREATE TABLE IF NOT EXISTS roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS role_has_permission (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
+    FOREIGN KEY (role_id) REFERENCES roles(id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id)
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    birthDay DATE,
+    address VARCHAR(255),
+    gender ENUM('MALE', 'FEMALE', 'OTHER'),
+    status ENUM('ACTIVE', 'INACTIVE', 'NONE') DEFAULT 'ACTIVE',
+    refresh_token TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS user_has_role (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    role_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
+CREATE TABLE IF NOT EXISTS companies (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255),
+    company_size VARCHAR(50),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS jobs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    location VARCHAR(255),
+    workplace ENUM('OFFICE', 'HYBRID', 'REMOTE'),
+    salary_range VARCHAR(100) DEFAULT 'You''ll love it!',
+    company_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS job_skills (
+    job_id BIGINT NOT NULL,
+    skill_id BIGINT NOT NULL,
+    PRIMARY KEY (job_id, skill_id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id),
+    FOREIGN KEY (skill_id) REFERENCES skills(id)
+);
+
+-- Insert sample data
+-- Insert roles
+INSERT INTO roles (name, description) VALUES
+('ADMIN', 'Administrator role'),
+('USER', 'Regular user role'),
+('MANAGER', 'Manager role'),
+('STAFF', 'Staff role');
+
+-- Insert permissions
+INSERT INTO permissions (name, description) VALUES
+('CREATE_JOB', 'Permission to create jobs'),
+('EDIT_JOB', 'Permission to edit jobs'),
+('DELETE_JOB', 'Permission to delete jobs'),
+('VIEW_JOB', 'Permission to view jobs'),
+('MANAGE_USERS', 'Permission to manage users'),
+('MANAGE_ROLES', 'Permission to manage roles');
+
+-- Insert role-permission mappings
+INSERT INTO role_has_permission (role_id, permission_id) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), -- Admin has all permissions
+(2, 4), -- User can only view jobs
+(3, 1), (3, 2), (3, 4), -- Manager can create, edit, and view jobs
+(4, 1), (4, 4); -- Staff can create and view jobs
+
+-- Insert sample users (passwords are BCrypt hashed)
+INSERT INTO users (name, email, password, phone, birthDay, address, gender, status) VALUES
+('Admin User', 'admin@example.com', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG', '1234567890', '1990-01-01', '123 Admin St', 'MALE', 'ACTIVE'),
+('Regular User', 'user@example.com', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG', '0987654321', '1995-05-15', '456 User Ave', 'FEMALE', 'ACTIVE'),
+('Manager User', 'manager@example.com', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG', '5555555555', '1988-08-08', '789 Manager Rd', 'MALE', 'ACTIVE'),
+('Staff User', 'staff@example.com', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG', '4444444444', '1992-12-12', '321 Staff Blvd', 'FEMALE', 'ACTIVE');
+
+-- Assign roles to users
+INSERT INTO user_has_role (user_id, role_id) VALUES
+(1, 1), -- Admin user has ADMIN role
+(2, 2), -- Regular user has USER role
+(3, 3), -- Manager user has MANAGER role
+(4, 4); -- Staff user has STAFF role
+
+-- Insert sample companies
+INSERT INTO companies (name, address, company_size, description) VALUES
+('Tech Solutions Inc', '123 Tech Street, New York, NY', '100-500', 'A leading technology solutions provider'),
+('Digital Innovations', '456 Digital Ave, San Francisco, CA', '50-200', 'Innovative digital solutions company'),
+('Global Systems', '789 Global Rd, London, UK', '500-1000', 'Global technology systems provider');
+
+-- Insert sample skills
+INSERT INTO skills (name) VALUES
+('Java'),
+('Spring Boot'),
+('Microservices'),
+('React'),
+('Node.js'),
+('Python'),
+('AWS'),
+('Docker'),
+('Kubernetes'),
+('SQL');
+
+-- Insert sample jobs
+INSERT INTO jobs (title, description, location, workplace, salary_range, company_id) VALUES
+('Senior Java Developer', 'Looking for an experienced Java developer with Spring Boot knowledge', 'New York, NY', 'HYBRID', '$120,000 - $150,000', 1),
+('Frontend Developer', 'Seeking a skilled React developer for our web applications', 'San Francisco, CA', 'REMOTE', '$100,000 - $130,000', 2),
+('DevOps Engineer', 'DevOps engineer needed for cloud infrastructure management', 'London, UK', 'OFFICE', '£80,000 - £100,000', 3);
+
+-- Assign skills to jobs
+INSERT INTO job_skills (job_id, skill_id) VALUES
+(1, 1), (1, 2), (1, 3), -- Senior Java Developer needs Java, Spring Boot, Microservices
+(2, 4), (2, 5), -- Frontend Developer needs React, Node.js
+(3, 7), (3, 8), (3, 9); -- DevOps Engineer needs AWS, Docker, Kubernetes

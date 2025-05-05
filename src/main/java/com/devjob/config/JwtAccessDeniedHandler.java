@@ -8,7 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
-import com.devjob.dto.response.ErrorResponse;
+import com.devjob.dto.response.common.ErrorResponse;
 import com.devjob.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
-import com.devjob.dto.request.SignInRequest;
-import com.devjob.dto.request.SignOutRequest;
-import com.devjob.dto.request.SignUpRequest;
-import com.devjob.dto.request.ForgotPasswordRequest;
-import com.devjob.dto.request.ChangePasswordRequest;
-import com.devjob.dto.request.ResetPasswordRequest;
-import com.devjob.dto.response.RefreshTokenResponse;
-import com.devjob.dto.response.ResponseData;
-import com.devjob.dto.response.SignInResponse;
+import com.devjob.dto.request.auth.ChangePasswordRequest;
+import com.devjob.dto.request.auth.ForgotPasswordRequest;
+import com.devjob.dto.request.auth.ResetPasswordRequest;
+import com.devjob.dto.request.auth.SignInRequest;
+import com.devjob.dto.request.auth.SignOutRequest;
+import com.devjob.dto.request.auth.SignUpRequest;
+import com.devjob.dto.response.auth.RefreshTokenResponse;
+import com.devjob.dto.response.auth.SignInResponse;
+import com.devjob.dto.response.common.ResponseData;
 import com.devjob.service.AuthenticationService;
 
 import jakarta.servlet.http.HttpServletResponse;

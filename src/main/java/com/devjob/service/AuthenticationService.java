@@ -1,12 +1,12 @@
 package com.devjob.service;
 
-import com.devjob.dto.request.SignInRequest;
-import com.devjob.dto.request.SignOutRequest;
-import com.devjob.dto.request.SignUpRequest;
-import com.devjob.dto.request.ChangePasswordRequest;
-import com.devjob.dto.request.ResetPasswordRequest;
-import com.devjob.dto.response.SignInResponse;
-import com.devjob.dto.response.RefreshTokenResponse;
+import com.devjob.dto.request.auth.ChangePasswordRequest;
+import com.devjob.dto.request.auth.ResetPasswordRequest;
+import com.devjob.dto.request.auth.SignInRequest;
+import com.devjob.dto.request.auth.SignOutRequest;
+import com.devjob.dto.request.auth.SignUpRequest;
+import com.devjob.dto.response.auth.RefreshTokenResponse;
+import com.devjob.dto.response.auth.SignInResponse;
 
 import jakarta.servlet.http.HttpServletResponse;
 

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.devjob.dto.request.UserCreationRequest;
-import com.devjob.dto.response.ResponseData;
-import com.devjob.dto.response.UserCreationResponse;
+import com.devjob.dto.request.user.UserCreationRequest;
+import com.devjob.dto.response.common.ResponseData;
+import com.devjob.dto.response.user.UserCreationResponse;
 import com.devjob.service.UserService;
 
 import jakarta.validation.Valid;
